@@ -1,0 +1,144 @@
+//FOCP2 ASSIGNMENT-2
+
+#include <iostream>
+#include <string>
+
+using namespace std;
+
+class Student {
+public:
+    string name;
+    string rollNo;
+    float cgpa;
+    string* courses;
+    int courseCount;
+
+    Student(string n, string r, float c) {
+        name = n;
+        rollNo = r;
+        if(c >= 0.0 && c <= 4.0) cgpa = c;
+        else cgpa = 0.0;
+        courses = nullptr;
+        courseCount = 0;
+    }
+
+    void addCourse(string course) {
+        if(course.empty()) {
+            cout << "Error: Course name cannot be empty!\n";
+            return;
+        }
+
+        // Check for course
+        for(int i=0; i<courseCount; i++) {
+            if(courses[i] == course) {
+                cout << "Error: Course already exists!\n";
+                return;
+            }
+        }
+
+        // Allocate memory for new course
+        string* newCourses = new string[courseCount + 1];
+        if(courses != nullptr) {
+            for(int i=0; i<courseCount; i++) {
+                newCourses[i] = courses[i];
+            }
+            delete[] courses; // Free old memory
+        }
+        newCourses[courseCount] = course;
+        courses = newCourses;
+        courseCount++;
+    }
+
+    void updateCGPA(float newCgpa) {
+        if(newCgpa >= 0.0 && newCgpa <= 4.0) {
+            cgpa = newCgpa;
+            cout << "CGPA updated!\n";
+        } else {
+            cout << "Invalid CGPA! Use 0.0-4.0\n";
+        }
+    }
+
+    void display() {
+        cout << "\nName: " << name
+             << "\nRoll: " << rollNo
+             << "\nCGPA: " << cgpa
+             << "\nCourses: ";
+             
+        for(int i=0; i<courseCount; i++) cout << courses[i] << ", ";
+        cout << "\n";
+    }
+
+    ~Student() {
+        if(courses != nullptr) delete[] courses; 
+    }
+};
+
+class StudentManager {
+public:
+    Student* students;
+    int studentCount;
+
+    StudentManager() {
+        students = nullptr;
+        studentCount = 0;
+    }
+
+    void addStudent(Student s) {
+        for(int i=0; i<studentCount; i++) {
+            if(students[i].rollNo == s.rollNo) {
+                cout << "Error: Student already exists!\n";
+                return;
+            }
+        }
+
+        // Allocate memory for new student
+        Student* newStudents = new Student[studentCount + 1];
+        if(students != nullptr) {
+            for(int i=0; i<studentCount; i++) {
+                newStudents[i] = students[i];
+            }
+            delete[] students; 
+        }
+        newStudents[studentCount] = s;
+        students = newStudents;
+        studentCount++;
+        cout << "Student added!\n";
+    }
+
+    void showAll() {
+        cout << "\n All Students -";
+        for(int i=0; i<studentCount; i++) students[i].display();
+    }
+
+    void manageStudent(string roll) {
+        for(int i=0; i<studentCount; i++) {
+            if(students[i].rollNo == roll) {
+                students[i].addCourse("Maths");
+                students[i].addCourse("Physics");
+                students[i].updateCGPA(4.0);
+                students[i].updateCGPA(4.5); // Invalid
+                return;
+            }
+        }
+        cout << "Student not found!\n";
+    }
+
+    ~StudentManager() {
+        if(students != nullptr) delete[] students; // Free memory
+    }
+};
+
+int main() {
+    StudentManager manager;
+
+    Student s1("Rahul", "CS101", 3.8);
+    Student s2("Priya", "CS102", 3.5);
+    
+    manager.addStudent(s1);
+    manager.addStudent(s2);
+    manager.addStudent(s1); 
+
+    manager.manageStudent("CS101");
+    manager.showAll();
+    return 0;
+}
